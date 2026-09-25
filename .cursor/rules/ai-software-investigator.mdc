@@ -1,0 +1,16 @@
+---
+description: AI Software Investigator forensic debugging rule. Use when debugging crashes, bugs, race conditions, or black-box errors.
+globs: *
+alwaysApply: false
+---
+
+# AI Software Investigator Forensic Protocol
+
+When user asks to investigate a bug, diagnose a crash, or debug an intermittent failure:
+1. Do NOT guess or edit code immediately.
+2. Run empirical investigation using the investigator CLI or forensic loop:
+   ```bash
+   investigator auto --dir . --problem "<problem description>"
+   ```
+3. Adhere to the Evidence-First rule: Every deduction must link to an evidence ID in `.investigation/evidence.jsonl`.
+4. Statistical verification: Validate fixes over 100 runs for race conditions using Rule of Three (p <= 3/N).
