@@ -146,7 +146,7 @@ Hypothesis Ledger
 Clone the repository and run the zero-dependency installer:
 
 ```bash
-git clone https://github.com/duanshengnan885/ai-software-investigator.git
+git clone https://github.com/btrzl/ai-software-investigator.git
 cd ai-software-investigator
 
 # Auto-detects all installed AI platforms, installs SKILL.md, and sets up CLI

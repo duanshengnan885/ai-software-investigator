@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
-    {name = "duanshengnan885", email = "duanshengnan885@users.noreply.github.com"}
+    {name = "btrzl", email = "btrzl@users.noreply.github.com"}
 ]
 keywords = [
     "investigation",
@@ -44,9 +44,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/duanshengnan885/ai-software-investigator"
-Repository = "https://github.com/duanshengnan885/ai-software-investigator.git"
-"Bug Tracker" = "https://github.com/duanshengnan885/ai-software-investigator/issues"
+Homepage = "https://github.com/btrzl/ai-software-investigator"
+Repository = "https://github.com/btrzl/ai-software-investigator.git"
+"Bug Tracker" = "https://github.com/btrzl/ai-software-investigator/issues"
 
 [project.optional-dependencies]
 test = [
