@@ -4,9 +4,12 @@ AI Software Investigator (ASI) - Universal Skill Installer
 Installs the AI Software Investigator skill into your AI coding assistant environment:
 - Google Antigravity (AGY)
 - Claude Code / Claude Desktop
-- OpenCode / Codex / Reasonix
+- OpenAI Codex / Codex CLI
+- 豆包 (Doubao) / 豆包 MarsCode / Trae IDE
+- DeepSeek / DeepSeek-Harness
+- OpenCode / Reasonix / Universal Agents
 - Cursor / Windsurf
-- Local Workspace (.agents/skills)
+- Local Workspace
 """
 
 import os
@@ -42,7 +45,31 @@ def detect_platforms():
         "detected": (home / ".claude").exists(),
     }
 
-    # 3. OpenCode / Codex / Universal Agents
+    # 3. OpenAI Codex
+    codex_dir = home / ".codex" / "skills"
+    platforms["codex"] = {
+        "name": "OpenAI Codex CLI",
+        "target": codex_dir / "ai-software-investigator",
+        "detected": (home / ".codex").exists(),
+    }
+
+    # 4. 豆包 / MarsCode / Trae
+    doubao_dir = home / ".doubao" / "skills"
+    platforms["doubao"] = {
+        "name": "豆包 (Doubao) / MarsCode",
+        "target": doubao_dir / "ai-software-investigator",
+        "detected": (home / ".doubao").exists() or (home / ".marscode").exists() or (home / ".trae").exists(),
+    }
+
+    # 5. DeepSeek / DeepSeek-Harness
+    deepseek_dir = home / ".deepseek" / "skills"
+    platforms["deepseek"] = {
+        "name": "DeepSeek / DeepSeek-Harness",
+        "target": deepseek_dir / "ai-software-investigator",
+        "detected": (home / ".deepseek").exists(),
+    }
+
+    # 6. Universal Agent Skills (~/.agents/skills)
     agents_dir = home / ".agents" / "skills"
     platforms["agents"] = {
         "name": "Universal Agent Skills (~/.agents/skills)",
@@ -58,7 +85,7 @@ def copy_skill(target_dir: Path):
     shutil.copy2(SKILL_MD, target_skill_md)
     print(f"  [+] Installed SKILL.md -> {target_skill_md}")
 
-    # Optional: copy reference docs if needed
+    # Copy reference docs
     docs_dir = REPO_ROOT / "docs"
     if docs_dir.exists():
         target_docs = target_dir / "references"
@@ -71,26 +98,30 @@ def install_cursor_rule(target_workspace: Path):
     rules_dir = target_workspace / ".cursor" / "rules"
     rules_dir.mkdir(parents=True, exist_ok=True)
     rule_file = rules_dir / "ai-software-investigator.mdc"
-    
-    content = f"""---
-description: AI Software Investigator forensic debugging rule. Use when debugging crashes, bugs, race conditions, or black-box errors.
-globs: *
-alwaysApply: false
----
+    src_file = REPO_ROOT / ".cursor" / "rules" / "ai-software-investigator.mdc"
+    if src_file.exists():
+        shutil.copy2(src_file, rule_file)
+    else:
+        rule_file.write_text("# AI Software Investigator Rule", encoding="utf-8")
+    print(f"  [+] Installed Cursor rule -> {rule_file}")
 
-# AI Software Investigator Forensic Protocol
+def install_trae_rule(target_workspace: Path):
+    rules_dir = target_workspace / ".trae" / "rules"
+    rules_dir.mkdir(parents=True, exist_ok=True)
+    rule_file = rules_dir / "ai-software-investigator.md"
+    src_file = REPO_ROOT / ".trae" / "rules" / "ai-software-investigator.md"
+    if src_file.exists():
+        shutil.copy2(src_file, rule_file)
+    print(f"  [+] Installed Trae IDE rule -> {rule_file}")
 
-When user asks to investigate a bug, diagnose a crash, or debug an intermittent failure:
-1. Do NOT guess or edit code immediately.
-2. Run empirical investigation using the investigator CLI or forensic loop:
-   ```bash
-   investigator auto --dir . --problem "<problem description>"
-   ```
-3. Adhere to the Evidence-First rule: Every deduction must link to an evidence ID in `.investigation/evidence.jsonl`.
-4. Statistical verification: Validate fixes over 100 runs for race conditions using Rule of Three (p <= 3/N).
-"""
-    rule_file.write_text(content, encoding="utf-8")
-    print(f"  [+] Generated Cursor rule -> {rule_file}")
+def install_marscode_rule(target_workspace: Path):
+    rules_dir = target_workspace / ".marscode" / "rules"
+    rules_dir.mkdir(parents=True, exist_ok=True)
+    rule_file = rules_dir / "ai-software-investigator.md"
+    src_file = REPO_ROOT / ".marscode" / "rules" / "ai-software-investigator.md"
+    if src_file.exists():
+        shutil.copy2(src_file, rule_file)
+    print(f"  [+] Installed MarsCode IDE rule -> {rule_file}")
 
 def install_python_package():
     print("\n[*] Installing 'ai-software-investigator' Python package into current environment...")
@@ -105,9 +136,13 @@ def main():
     parser = argparse.ArgumentParser(description="AI Software Investigator Skill Installer")
     parser.add_argument("--antigravity", action="store_true", help="Install into Google Antigravity (~/.gemini/config/skills/)")
     parser.add_argument("--claude", action="store_true", help="Install into Claude Code (~/.claude/skills/)")
+    parser.add_argument("--codex", action="store_true", help="Install into OpenAI Codex CLI (~/.codex/skills/)")
+    parser.add_argument("--doubao", action="store_true", help="Install for 豆包 / MarsCode (~/.doubao/skills/)")
+    parser.add_argument("--deepseek", action="store_true", help="Install for DeepSeek / Harness (~/.deepseek/skills/)")
     parser.add_argument("--agents", action="store_true", help="Install into Universal Agents root (~/.agents/skills/)")
     parser.add_argument("--workspace", type=str, help="Install into a specific workspace (.agents/skills/ in target directory)")
     parser.add_argument("--cursor", type=str, help="Install Cursor rule into specified workspace directory")
+    parser.add_argument("--trae", type=str, help="Install Trae IDE rule into specified workspace directory")
     parser.add_argument("--all", action="store_true", help="Install into all detected AI platforms")
     parser.add_argument("--skip-pip", action="store_true", help="Skip running pip install -e .")
 
@@ -121,7 +156,7 @@ def main():
     installed_count = 0
 
     print("============================================================")
-    print("    AI Software Investigator (ASI) - Skill Installer        ")
+    print("    AI Software Investigator (ASI) - Multi-Agent Installer  ")
     print("============================================================")
 
     # Specific flags
@@ -135,6 +170,21 @@ def main():
         copy_skill(platforms["claude"]["target"])
         installed_count += 1
 
+    if args.codex:
+        print("\n[*] Installing into OpenAI Codex...")
+        copy_skill(platforms["codex"]["target"])
+        installed_count += 1
+
+    if args.doubao:
+        print("\n[*] Installing for 豆包 (Doubao)...")
+        copy_skill(platforms["doubao"]["target"])
+        installed_count += 1
+
+    if args.deepseek:
+        print("\n[*] Installing for DeepSeek / DeepSeek-Harness...")
+        copy_skill(platforms["deepseek"]["target"])
+        installed_count += 1
+
     if args.agents:
         print("\n[*] Installing into Universal Agents directory...")
         copy_skill(platforms["agents"]["target"])
@@ -145,6 +195,12 @@ def main():
         target = ws_path / ".agents" / "skills" / "ai-software-investigator"
         print(f"\n[*] Installing into workspace: {ws_path}...")
         copy_skill(target)
+        # Also copy agent constitution files
+        for f_name in ["AGENTS.md", "CODEX.md", "DOUBAO.md", "DEEPSEEK.md"]:
+            src = REPO_ROOT / f_name
+            if src.exists():
+                shutil.copy2(src, ws_path / f_name)
+                print(f"  [+] Installed directive -> {ws_path / f_name}")
         installed_count += 1
 
     if args.cursor:
@@ -153,8 +209,20 @@ def main():
         install_cursor_rule(ws_path)
         installed_count += 1
 
-    # Default / --all behavior
-    if not (args.antigravity or args.claude or args.agents or args.workspace or args.cursor):
+    if args.trae:
+        ws_path = Path(args.trae).resolve()
+        print(f"\n[*] Installing Trae / MarsCode rules into: {ws_path}...")
+        install_trae_rule(ws_path)
+        install_marscode_rule(ws_path)
+        installed_count += 1
+
+    # Default / --all auto-detect behavior
+    has_specific = any([
+        args.antigravity, args.claude, args.codex, args.doubao,
+        args.deepseek, args.agents, args.workspace, args.cursor, args.trae
+    ])
+
+    if not has_specific:
         print("\n[*] Auto-detecting installed AI assistant platforms:")
         any_detected = False
         for key, info in platforms.items():
@@ -178,14 +246,13 @@ def main():
     print("\n============================================================")
     print(f"  Installation complete! ({installed_count} skill location(s) configured)")
     print("============================================================")
-    print("\nHow to use in your AI platform (Claude Code, Antigravity, Cursor, etc.):")
-    print("  1. In conversation with your AI assistant, type:")
-    print("     /investigate \"The server occasionally drops connections under load\"")
-    print("     or:")
-    print("     \"请使用 ai-software-investigator 技能调查为什么这个脚本运行会崩溃\"")
-    print("  2. In your terminal, you can run the investigator CLI directly:")
-    print("     investigator auto --dir . --problem \"<problem description>\"")
-    print("     investigator demo 1")
+    print("\nSupported Platforms & Usage:")
+    print("  • Google Antigravity: /investigate \"...\"")
+    print("  • Claude Code:        /investigate \"...\"")
+    print("  • OpenAI Codex:       Follows CODEX.md & calls 'investigator auto'")
+    print("  • 豆包 / Trae:        Follows DOUBAO.md & .trae/rules/")
+    print("  • DeepSeek / Harness: investigator auto --provider deepseek --model deepseek-reasoner")
+    print("                        investigator harness --spec task.json")
     print("============================================================\n")
 
 if __name__ == "__main__":

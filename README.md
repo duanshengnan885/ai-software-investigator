@@ -11,9 +11,10 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-19%20passed%20%7C%20100%25-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-23%20passed%20%7C%20100%25-brightgreen.svg)]()
 [![Type Checked](https://img.shields.io/badge/type--checked-pydantic%20v2-blueviolet.svg)]()
 [![Agent Skill](https://img.shields.io/badge/Agent%20Skill-Ready-blue.svg)](SKILL.md)
+[![Platforms](https://img.shields.io/badge/platforms-Antigravity%20%7C%20Claude%20%7C%20Codex%20%7C%20Doubao%20%7C%20DeepSeek-orange.svg)]()
 
 **"Give it a broken or unknown program. Let it investigate before it fixes."**
 
@@ -130,7 +131,13 @@ Hypothesis Ledger
 ### Requirements
 - Python 3.10+
 - OS: Windows, Linux, macOS
-- Compatible with AI Agent Platforms: **Google Antigravity**, **Claude Code**, **Cursor**, **Windsurf**, **OpenCode / Codex**
+- Compatible with all major AI Agent Platforms:
+  - 🤖 **Google Antigravity (AGY)**
+  - 🧠 **Claude Code / Claude Desktop**
+  - ⚡ **OpenAI Codex / Codex CLI**
+  - 🫘 **豆包 (Doubao) / 字节跳动 MarsCode / Trae IDE**
+  - 🐋 **DeepSeek / DeepSeek-Harness / DeepSeek-R1**
+  - 🎯 **Cursor / Windsurf / Universal Agent Workspaces**
 
 ---
 
@@ -142,29 +149,29 @@ Clone the repository and run the zero-dependency installer:
 git clone https://github.com/duanshengnan885/ai-software-investigator.git
 cd ai-software-investigator
 
-# Auto-detects installed AI platforms, installs SKILL.md, and sets up CLI
+# Auto-detects all installed AI platforms, installs SKILL.md, and sets up CLI
 python install.py
 ```
 
-You can also target specific platforms explicitly:
+Target specific platforms directly:
 ```bash
 python install.py --antigravity      # Install to Google Antigravity (~/.gemini/config/skills/)
 python install.py --claude            # Install to Claude Code (~/.claude/skills/)
+python install.py --codex             # Install to OpenAI Codex CLI (~/.codex/skills/)
+python install.py --doubao            # Install for 豆包 / MarsCode (~/.doubao/skills/)
+python install.py --deepseek          # Install for DeepSeek / Harness (~/.deepseek/skills/)
+python install.py --trae .            # Generate Trae & MarsCode rules in target project
 python install.py --cursor .          # Generate Cursor rules in target project
-python install.py --agents            # Install to Universal Agent root (~/.agents/skills/)
+python install.py --workspace .       # Full workspace install (.agents/skills + all agent directives)
 ```
 
 ---
 
-### Method B: Manual AI Platform Integration
+### Method B: Native Multi-Agent Platform Integration
 
 #### 1. Google Antigravity (AGY)
-Copy or symlink `SKILL.md` to your global or project skills directory:
 ```bash
-# Global
 cp SKILL.md ~/.gemini/config/skills/ai-software-investigator/SKILL.md
-# Or in your active project workspace:
-cp SKILL.md .agents/skills/ai-software-investigator/SKILL.md
 ```
 
 #### 2. Claude Code
@@ -173,8 +180,33 @@ mkdir -p ~/.claude/skills/ai-software-investigator
 cp SKILL.md ~/.claude/skills/ai-software-investigator/
 ```
 
-#### 3. Cursor / Windsurf
-Copy `.cursor/rules/ai-software-investigator.mdc` into your target workspace's `.cursor/rules/`.
+#### 3. OpenAI Codex
+Codex automatically detects [CODEX.md](CODEX.md) or skills in `~/.codex/skills/` or `~/.agents/skills/`.
+
+#### 4. 豆包 (Doubao) / MarsCode / Trae IDE
+Copy [DOUBAO.md](DOUBAO.md) and IDE rules:
+```bash
+cp DOUBAO.md /path/to/your/project/
+cp -r .trae /path/to/your/project/
+cp -r .marscode /path/to/your/project/
+```
+
+#### 5. DeepSeek & DeepSeek-Harness (SWE-bench / Automated Evals)
+Run investigations natively powered by **DeepSeek-R1** (`deepseek-reasoner`) or execute benchmark suites via `DeepSeekHarness`:
+```bash
+# Autonomous investigation using DeepSeek-R1 reasoning engine:
+export DEEPSEEK_API_KEY="your-api-key"
+investigator auto --dir . --problem "Connection drops under load" --provider deepseek --model deepseek-reasoner
+
+# Run evaluation task instance via DeepSeek Harness:
+investigator harness --dir . --problem "Boundary crash" --test-cmd "pytest" --output eval_result.json
+
+# Run batch benchmark evaluation suite:
+investigator harness --spec benchmark_suite.json --output results.json
+```
+
+#### 6. Cursor / Windsurf
+Copy `.cursor/rules/ai-software-investigator.mdc` into your project's `.cursor/rules/`.
 
 ---
 

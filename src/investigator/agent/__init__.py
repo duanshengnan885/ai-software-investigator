@@ -1,7 +1,13 @@
 """Agent package."""
 
 from investigator.agent.tools import ForensicToolRegistry, ToolCall
-from investigator.agent.llm import BaseReasoningProvider, HeuristicForensicDriver, LLMReasoningProvider
+from investigator.agent.llm import (
+    BaseReasoningProvider,
+    HeuristicForensicDriver,
+    LLMReasoningProvider,
+    DeepSeekReasoningProvider,
+    DoubaoReasoningProvider,
+)
 from investigator.agent.core import AutonomousInvestigator
 
 __all__ = [
@@ -10,5 +16,7 @@ __all__ = [
     "BaseReasoningProvider",
     "HeuristicForensicDriver",
     "LLMReasoningProvider",
+    "DeepSeekReasoningProvider",
+    "DoubaoReasoningProvider",
     "AutonomousInvestigator",
 ]

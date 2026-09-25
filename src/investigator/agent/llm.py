@@ -195,13 +195,53 @@ class LLMReasoningProvider(BaseReasoningProvider):
             with urllib.request.urlopen(req, timeout=30) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 choice = data["choices"][0]["message"]
+                thought = choice.get("reasoning_content") or choice.get("content") or ""
                 if "tool_calls" in choice and choice["tool_calls"]:
                     tc = choice["tool_calls"][0]["function"]
                     args = json.loads(tc.get("arguments", "{}"))
-                    thought = choice.get("content") or ""
                     return ToolCall(name=tc["name"], arguments=args, thought=thought)
         except Exception:
             pass
 
         # Fallback to heuristic driver if network or key fails
         return HeuristicForensicDriver().decide_next_step(case_state, tools, system_instruction)
+
+
+class DeepSeekReasoningProvider(LLMReasoningProvider):
+    """DeepSeek Reasoning Provider (DeepSeek-R1 / DeepSeek-V3).
+
+    Leverages DeepSeek's advanced reasoning capabilities and native
+    chain-of-thought (reasoning_content) extraction.
+    """
+
+    def __init__(
+        self,
+        model: str = "deepseek-reasoner",
+        api_key: Optional[str] = None,
+        base_url: Optional[str] = None,
+    ):
+        super().__init__(
+            model=model,
+            api_key=api_key or os.getenv("DEEPSEEK_API_KEY"),
+            base_url=base_url or os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1"),
+        )
+
+
+class DoubaoReasoningProvider(LLMReasoningProvider):
+    """ByteDance Doubao / Volcengine Ark Reasoning Provider.
+
+    Connects to Volcano Engine Ark platform (doubao-pro, doubao-1.5-pro).
+    """
+
+    def __init__(
+        self,
+        model: str = "doubao-1.5-pro-32k",
+        api_key: Optional[str] = None,
+        base_url: Optional[str] = None,
+    ):
+        super().__init__(
+            model=model,
+            api_key=api_key or os.getenv("DOUBAO_API_KEY") or os.getenv("ARK_API_KEY"),
+            base_url=base_url or os.getenv("DOUBAO_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3"),
+        )
+

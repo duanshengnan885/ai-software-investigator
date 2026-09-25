@@ -108,10 +108,23 @@ def cmd_auto(args: argparse.Namespace) -> None:
     """Run autonomous investigation loop driven by AI reasoning."""
     target_dir = Path(args.dir).resolve()
     from investigator.agent.core import AutonomousInvestigator
-    from investigator.agent.llm import LLMReasoningProvider, HeuristicForensicDriver
+    from investigator.agent.llm import (
+        HeuristicForensicDriver,
+        LLMReasoningProvider,
+        DeepSeekReasoningProvider,
+        DoubaoReasoningProvider,
+    )
 
-    if getattr(args, "use_llm", False):
-        provider = LLMReasoningProvider(model=args.model)
+    provider_type = getattr(args, "provider", "heuristic")
+    if getattr(args, "use_llm", False) and provider_type == "heuristic":
+        provider_type = "openai"
+
+    if provider_type == "deepseek":
+        provider = DeepSeekReasoningProvider(model=args.model or "deepseek-reasoner")
+    elif provider_type == "doubao":
+        provider = DoubaoReasoningProvider(model=args.model or "doubao-1.5-pro-32k")
+    elif provider_type == "openai":
+        provider = LLMReasoningProvider(model=args.model or "gpt-4o")
     else:
         provider = HeuristicForensicDriver()
 
@@ -128,6 +141,50 @@ def cmd_auto(args: argparse.Namespace) -> None:
         repro_command=args.repro,
         max_steps=args.max_steps,
     )
+
+
+def cmd_harness(args: argparse.Namespace) -> None:
+    """Run investigation via DeepSeek / SWE-bench evaluation harness."""
+    from investigator.harness.deepseek import DeepSeekHarness, HarnessTaskSpec
+    import json
+
+    harness = DeepSeekHarness(
+        use_deepseek_api=getattr(args, "use_deepseek", False),
+        deepseek_model=getattr(args, "model", "deepseek-reasoner"),
+    )
+
+    if args.spec:
+        spec_path = Path(args.spec).resolve()
+        with open(spec_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, list):
+            specs = [HarnessTaskSpec.from_dict(d, base_dir=spec_path.parent) for d in data]
+            results = harness.run_suite(specs)
+            out_data = [r.to_dict() for r in results]
+        else:
+            spec = HarnessTaskSpec.from_dict(data, base_dir=spec_path.parent)
+            res = harness.run_task(spec)
+            out_data = res.to_dict()
+    else:
+        spec = HarnessTaskSpec(
+            instance_id=args.instance_id or f"HARNESS-{datetime_stamp()}",
+            problem_statement=args.problem or "Automatic Harness Problem",
+            repo_dir=Path(args.dir).resolve(),
+            test_command=args.test_cmd,
+            category=args.category,
+            max_steps=args.max_steps,
+        )
+        res = harness.run_task(spec)
+        out_data = res.to_dict()
+
+    if args.output:
+        out_path = Path(args.output).resolve()
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(out_data, f, indent=2)
+        console.print(f"[bold green]✓ Harness evaluation results saved to:[/bold green] {out_path}")
+    else:
+        console.print(f"\n[bold cyan]Harness Evaluation Result:[/bold cyan]")
+        console.print(json.dumps(out_data, indent=2))
 
 
 def datetime_stamp() -> str:
@@ -156,9 +213,27 @@ def main() -> None:
         help="Investigation category"
     )
     p_auto.add_argument("--max-steps", type=int, default=15, help="Maximum reasoning loop steps")
-    p_auto.add_argument("--no-sandbox", action="store_true", help="Disable filesystem sandbox")
+    p_auto.add_argument(
+        "--provider",
+        default="heuristic",
+        choices=["heuristic", "openai", "deepseek", "doubao"],
+        help="Reasoning provider backend (heuristic offline driver, openai, deepseek, or doubao)"
+    )
     p_auto.add_argument("--use-llm", action="store_true", help="Use live LLM API (OpenAI/Anthropic) instead of offline forensic driver")
-    p_auto.add_argument("--model", default="gpt-4o", help="LLM model name if using --use-llm")
+    p_auto.add_argument("--model", default=None, help="LLM model name (e.g. deepseek-reasoner, doubao-1.5-pro-32k, gpt-4o)")
+
+    # harness (DeepSeek & Automated Benchmark Harness)
+    p_harness = subparsers.add_parser("harness", help="Run DeepSeek / benchmark evaluation harness")
+    p_harness.add_argument("--spec", help="Path to JSON task spec file or suite list")
+    p_harness.add_argument("--dir", default=".", help="Target project directory")
+    p_harness.add_argument("--problem", help="Problem statement")
+    p_harness.add_argument("--test-cmd", help="Verification test command")
+    p_harness.add_argument("--instance-id", help="Benchmark instance ID")
+    p_harness.add_argument("--category", default="bug", help="Task category")
+    p_harness.add_argument("--max-steps", type=int, default=15, help="Max reasoning steps")
+    p_harness.add_argument("--use-deepseek", action="store_true", help="Use live DeepSeek reasoning API")
+    p_harness.add_argument("--model", default="deepseek-reasoner", help="DeepSeek model (deepseek-reasoner or deepseek-chat)")
+    p_harness.add_argument("--output", "-o", help="Output path for JSON results")
 
     # new
     p_new = subparsers.add_parser("new", help="Initialize a new investigation case")
@@ -197,6 +272,8 @@ def main() -> None:
 
     if args.subcommand == "auto":
         cmd_auto(args)
+    elif args.subcommand == "harness":
+        cmd_harness(args)
     elif args.subcommand == "new":
         cmd_new(args)
     elif args.subcommand == "status":
