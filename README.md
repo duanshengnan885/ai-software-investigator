@@ -24,7 +24,7 @@
 
 ---
 
-## 🔬 Core Philosophy
+## Core Philosophy
 
 When a software system behaves unexpectedly, standard AI coding assistants read the source code and immediately guess how to fix it. This speculative guessing leads to hallucinations, false confidence, and regression-inducing patches.
 
@@ -41,7 +41,7 @@ $$\text{Hypotheses} \longrightarrow \text{Experiments} \longrightarrow \text{Evi
 
 ---
 
-## 📋 The 12-Stage Forensic Protocol
+## The 12-Stage Forensic Protocol
 
 ```text
 Project Intake
@@ -71,7 +71,7 @@ Forensic Report Generation
 
 ---
 
-## 🖥️ Live Terminal Interface
+## Live Terminal Interface
 
 ASI features a rich, real-time terminal UI providing full situational awareness:
 
@@ -126,18 +126,18 @@ Hypothesis Ledger
 
 ---
 
-## 🚀 Quickstart & Skill Installation
+## Quickstart & Skill Installation
 
 ### Requirements
 - Python 3.10+
 - OS: Windows, Linux, macOS
 - Compatible with all major AI Agent Platforms:
-  - 🤖 **Google Antigravity (AGY)**
-  - 🧠 **Claude Code / Claude Desktop**
-  - ⚡ **OpenAI Codex / Codex CLI**
-  - 🫘 **豆包 (Doubao) / 字节跳动 MarsCode / Trae IDE**
-  - 🐋 **DeepSeek / DeepSeek-Harness / DeepSeek-R1**
-  - 🎯 **Cursor / Windsurf / Universal Agent Workspaces**
+  - **Google Antigravity (AGY)**
+  - **Claude Code / Claude Desktop**
+  - **OpenAI Codex / Codex CLI**
+  - **豆包 (Doubao) / 字节跳动 MarsCode / Trae IDE**
+  - **DeepSeek / DeepSeek-Harness / DeepSeek-R1**
+  - **Cursor / Windsurf / Universal Agent Workspaces**
 
 ---
 
@@ -210,7 +210,7 @@ Copy `.cursor/rules/ai-software-investigator.mdc` into your project's `.cursor/r
 
 ---
 
-### 💬 How to Invoke in Your AI Coding Platform
+### How to Invoke in Your AI Coding Platform
 
 Once installed, simply talk to your AI assistant naturally:
 
@@ -234,7 +234,7 @@ User:
 
 ---
 
-### 💻 Direct CLI Usage & Interactive Demos
+### Direct CLI Usage & Interactive Demos
 
 You can also execute investigations directly from your terminal:
 
@@ -254,7 +254,7 @@ investigator demo 3   # Demo 3: Pure Black-box Binary Investigation
 
 ---
 
-## 🎬 The Three Core Demos
+## The Three Core Demos
 
 ### Demo 1: Ordinary Logic Bug
 - **Problem:** Order processing crashes with `IndexError` when quantity hits tier boundaries (`quantity = 10`).
@@ -297,7 +297,7 @@ investigator demo 3   # Demo 3: Pure Black-box Binary Investigation
 
 ---
 
-## 📁 Investigation State Directory (`.investigation/`)
+## Investigation State Directory (`.investigation/`)
 
 ASI writes complete forensic state to disk in `.investigation/`:
 
@@ -331,14 +331,16 @@ ASI writes complete forensic state to disk in `.investigation/`:
 
 ---
 
-## 🤖 Using as an Agent Skill
+## Using as an Agent Skill
 
 ASI is packaged with a production-grade [SKILL.md](SKILL.md) compatible with:
-- **Google Antigravity**
-- **Claude Code**
-- **Codex**
-- **Cursor** / **Windsurf**
-- **OpenCode**
+- Google Antigravity
+- Claude Code
+- OpenAI Codex
+- 豆包 (Doubao) / MarsCode / Trae
+- DeepSeek / DeepSeek-Harness
+- Cursor / Windsurf
+- OpenCode
 
 When interacting with an agent, simply invoke:
 ```text
@@ -348,7 +350,7 @@ The agent reads `SKILL.md` and executes the forensic protocol step-by-step rathe
 
 ---
 
-## 📦 Project Structure
+## Project Structure
 
 ```text
 ai-software-investigator/
@@ -410,7 +412,7 @@ ai-software-investigator/
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 Run the complete test suite:
 
@@ -438,11 +440,11 @@ tests/unit/test_hypotheses.py::test_hypothesis_manager_guardrails PASSED
 tests/unit/test_hypotheses.py::test_hypothesis_manager_contradiction_guard PASSED
 tests/unit/test_sandbox.py::test_directory_sandbox_snapshots_and_rollback PASSED
 tests/unit/test_sandbox.py::test_safety_guard_blocks_destructive_commands PASSED
-============================= 17 passed in 1.02s ==============================
+============================= 23 passed in 1.78s ==============================
 ```
 
 ---
 
-## ⚖️ License
+## License
 
 MIT License. See [LICENSE](LICENSE) for details.
